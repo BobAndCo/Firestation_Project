@@ -1,8 +1,8 @@
-import java.io.FileReader;
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Arrays;
+import java.util.List;
 
 /**[Graph.java]
   * This is Algorithms Assignment - Fire Stations Planner 
@@ -12,18 +12,45 @@ import java.util.Arrays;
   */
 
 public class Graph {
-    private boolean[][] map;
-    private ArrayList<ArrayList<Integer>> arrayList;
+
+    protected boolean[][] map;
+    protected ArrayList<ArrayList<Integer>> cityMap;
     static FileReader fileReader;
     static String fileName = "communityInput_";
     static BufferedReader input;
+
+    protected static final boolean FIRESTATION = true;
+    protected static final boolean NOFIRESTATION = !FIRESTATION; //sets to false
     
-    Graph(int type){
-        arrayList = new ArrayList<ArrayList<Integer>> ();
+    public Graph(int mapIndex){
+
+        cityMap = new ArrayList<ArrayList<Integer>> ();
+        this.getMap(mapIndex);
+
+    }
+    
+    @Override
+    public String toString(){
         
-        /***********read input from text file************/
+        String city = "";
+        String temp = "";
+
+        for(int i=0; i<this.cityMap.size(); i++){
+            temp = this.cityMap.get(i).toString();
+            city += Integer.toString(i) + " - " + temp.substring(1, temp.length() - 1) + "\n";
+        }
+        return city;
+    }
+
+    public void print(){
+        System.out.print(this.toString());
+    }
+
+    
+    
+    public void getMap(int mapIndex){
         try{
-            fileReader = new FileReader("TestCases/" + fileName + type + ".txt");
+            fileReader = new FileReader("TestCases/" + fileName + mapIndex + ".txt");
             input = new BufferedReader(fileReader);
             String str;
             while(input.ready()){
@@ -36,25 +63,36 @@ public class Graph {
                     connectionIntArray[node] = Integer.parseInt(connectionStr[node]);
                 }
                 List<Integer> newList = Arrays.asList(connectionIntArray);
-                arrayList.add(new ArrayList<Integer>(newList));
-            }input.close();
-            
+                cityMap.add(new ArrayList<Integer>(newList));
+            }
+            input.close();
         }catch(Exception e){
             e.printStackTrace();
         }
-        
-        
-        printArrayList();
     }
-    
-    public void printArrayList(){
-        for(int i=0; i<this.arrayList.size(); i++){
-            System.out.println(this.arrayList.get(i).toString());
+
+    private class Protect{
+
+        private int node;
+        private boolean status;
+
+        Protect(int number, boolean visited){
+            this.node = number;
+            this.status = visited;
         }
-    }
-    
-    public static void getMap(){
-        
+
+        public boolean getStatus(){
+            return this.status;
+        }
+
+        public void setStatus(boolean stat){
+            this.status = stat;
+        }
+
+        public int getNode(){
+            return this.node;
+        }
+
     }
     
 }
