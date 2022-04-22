@@ -12,8 +12,8 @@ import java.util.Arrays;
   */
 
 public class Graph {
-    boolean[][] map;
-    ArrayList<ArrayList<Integer>> arrayList;
+    private boolean[][] map;
+    private ArrayList<ArrayList<Integer>> arrayList;
     static FileReader fileReader;
     static String fileName = "communityInput_";
     static BufferedReader input;
