@@ -125,8 +125,8 @@ public class Graph {
             int nodeIndex;
             while(input.ready()){
                 str = input.readLine();            //format as: 1 - 0, 2, 5
-                nodeIndex = Integer.parseInt(str.substring(0, 1));
-                str = str.substring(4);            // only take 0, 2, 5 for operations 
+                nodeIndex = Integer.parseInt(str.substring(0, str.indexOf("-")-1) );
+                str = str.substring(str.indexOf("-") +2);            // only take 0, 2, 5 for operations 
                 
                 String[] connectionStr = str.split(" *, *");    // sample: [0, 2, 5]
                 Integer[] connectionIntArray = new Integer[connectionStr.length];
