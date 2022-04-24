@@ -31,7 +31,7 @@ public class Graph {
     }
 //------------------------------------------------------------
     private void getBestSolution(){
-        this.bestSolution = this.createFireStations(cityMap, 0, 0); // only testing node 0 first
+        this.bestSolution = this.createFireStations(cityMap, 1, 0); // only testing node 0 first
         /*
          * to be implement: call createFireStations for each node 
          */
@@ -67,19 +67,15 @@ public class Graph {
             if(!currentNode.isProtected()){
                 currentNode.setFireStation();
                 numOfFS = numOfFS +1;
-                /*********set currentNode's children as protected and recursion - move to its children**********/
+                /*********set currentNode's children as protected**********/
                 for(int c=0; c<childrenList.size(); c++){
-                    int index= childrenList.get(c);
-                    currentMap.get(index).setProtected();
-                    createFireStations(currentMap, index, numOfFS);
+                    currentMap.get(childrenList.get(c)).setProtected();
                 }  
-            }else{ //currentNode is protected
-                 /*********recursion: move to its children**********/
-                for(int c=0; c<childrenList.size(); c++){
-                    int index= childrenList.get(c);
-                    createFireStations(currentMap, index, numOfFS);
-                } 
             }
+            /*********recursion: move to its children**********/
+            for(int c=0; c<childrenList.size(); c++){
+                createFireStations(currentMap, childrenList.get(c), numOfFS);
+            } 
         }
         return null;
     }
@@ -90,7 +86,8 @@ public class Graph {
         String temp = "";
         Node currentNode;
         for(int i=0; i<currentMap.size(); i++){ 
-            // example print format: √ 0_FS_P - [1] // visited, index, isFS, Protected , connectionlist
+            // example print format: √ 0_FS_P - [1] 
+            // visited, index, isFS, Protected , connectionlist
             currentNode = currentMap.get(i);
             temp = currentNode.getConnectionList().toString();
             if(currentNode.hasVisited()){ city += "√ ";
