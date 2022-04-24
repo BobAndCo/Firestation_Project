@@ -20,39 +20,105 @@ public class Graph {
     protected static final boolean FIRESTATION = true;
     protected static final boolean NOTFIRESTATION = !FIRESTATION; //sets to false
     private int bestNumOfFS = 0;
-    
+    private ArrayList<Node> bestSolution;
+
 //------------------------------------------------------------
-    public Graph(int mapIndex){
+    Graph(int mapIndex){
         this.cityMap = new ArrayList<Node> ();
         this.setMap(mapIndex);
-        //this.createFireStations(cityMap, 0, 0);
+        this.getBestSolution();
+        System.out.println("Final num of FS: " + this.bestNumOfFS); // failed !!!!!!!!!!!!!!!!!!!!
     }
 //------------------------------------------------------------
-    public ArrayList<Node> getBestSolution(){
-        //call create fire stations for each node 
-        return null;
+    private void getBestSolution(){
+        this.bestSolution = this.createFireStations(cityMap, 0, 0); // only testing node 0 first
+        /*
+         * to be implement: call createFireStations for each node 
+         */
+        return;
     }
 //------------------------------------------------------------
-    public ArrayList<Node> createFireStations(ArrayList<Node> currentMap, int currentIndex, int numOfFS){ // key method !!!!!!!!!!
+    private ArrayList<Node> createFireStations(ArrayList<Node> currentMap, int currentIndex, int numOfFS){ // key method !!!!!!!!!!
+        //this.printCurrentMap(currentMap);
         if( (this.bestNumOfFS!= 0) && (numOfFS>this.bestNumOfFS) ){
             return null;        // base case: not the best solution
         }
-        System.out.println("hello");
-        if(false){  // base case: if every node is protected, work finish
-            /*********** add code here************/ 
-            //how to check all node is protected?
+        
+//Kylie: I believe there is a better way to check if every node is protected
+        boolean allProtected = true;
+        for(int mIdx=0; mIdx<currentMap.size(); mIdx++){
+            if(!currentMap.get(mIdx).isProtected()){
+                allProtected = false;
+                break;
+            }
+        }
+        if(allProtected){  // base case: if every node is protected, work finish
+            System.out.println("Finish work with " + numOfFS + " fire station(s). ");
+            this.bestNumOfFS = numOfFS;  // failed !!!!!!!!!!!!!!!!!!!!
+            this.printCurrentMap(currentMap);
             return currentMap;
         }   
         Node currentNode = currentMap.get(currentIndex);
-        if(!currentNode.hasVisited()){
+        ArrayList<Integer> childrenList = currentNode.getConnectionList();
+        if(currentNode.hasVisited()){
+            return null;
+        }else{
             currentNode.setVisited();
-            if(currentNode.isProtected()){
+            if(!currentNode.isProtected()){
                 currentNode.setFireStation();
+                numOfFS = numOfFS +1;
+                /*********set currentNode's children as protected and recursion - move to its children**********/
+                for(int c=0; c<childrenList.size(); c++){
+                    int index= childrenList.get(c);
+                    currentMap.get(index).setProtected();
+                    createFireStations(currentMap, index, numOfFS);
+                }  
+            }else{ //currentNode is protected
+                 /*********recursion: move to its children**********/
+                for(int c=0; c<childrenList.size(); c++){
+                    int index= childrenList.get(c);
+                    createFireStations(currentMap, index, numOfFS);
+                } 
             }
         }
-        
         return null;
     }
+//------------------------------------------------------------
+    private void printCurrentMap(ArrayList<Node> currentMap){ // for debugging
+        System.out.println("--------------currentMap--------" + this.bestNumOfFS);
+        String city = "";
+        String temp = "";
+        Node currentNode;
+        for(int i=0; i<currentMap.size(); i++){ 
+            // example print format: √ 0_FS_P - [1] // visited, index, isFS, Protected , connectionlist
+            currentNode = currentMap.get(i);
+            temp = currentNode.getConnectionList().toString();
+            if(currentNode.hasVisited()){ city += "√ ";
+            }else{ city += "X "; }
+            city += currentNode.getItem();
+            
+            if(currentNode.isFireStation()){ city += "_FS"; 
+            }else{ city += "_..";}
+            if(currentNode.isProtected()){ city += "_P"; 
+            }else{ city += "_."; }
+            
+            city += " - " + temp + "\n";
+        }
+        System.out.println(city);
+    }
+//------------------------------------------------------------
+    @Override
+    public String toString(){
+        String city = "\nFinal toString method\n";
+        String temp = "";
+
+        for(int i=0; i<this.cityMap.size(); i++){
+            temp = this.cityMap.get(i).getConnectionList().toString();
+            city += this.cityMap.get(i).getItem() + " - " + temp.substring(1, temp.length() - 1) + "\n";
+        }
+        return city;
+    }
+
 //------------------------------------------------------------
     public void setMap(int mapIndex){
         try{
@@ -79,21 +145,6 @@ public class Graph {
             e.printStackTrace();
         }
     }
-//------------------------------------------------------------
-    @Override
-    public String toString(){
-        String city = "";
-        String temp = "";
-
-        for(int i=0; i<this.cityMap.size(); i++){
-            temp = this.cityMap.get(i).getConnectionList().toString();
-            city += this.cityMap.get(i).getItem() + " - " + temp.substring(1, temp.length() - 1) + "\n";
-        }
-        return city;
-    }
-    public void print(){
-        System.out.print(this.toString());
-    }
 //-----------------------------------------------------------------------------------------
 // inner class
 //-----------------------------------------------------------------------------------------
@@ -112,7 +163,7 @@ public class Graph {
         public int getItem(){
             return this.item;
         }
-        public boolean isFirestation(){
+        public boolean isFireStation(){
             return this.isFireStation;
         }
         public boolean isProtected(){
