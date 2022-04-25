@@ -17,10 +17,7 @@ public class Graph {
     static FileReader fileReader;
     static BufferedReader input;
 
-    static String fileName = "communityInput_";
-
-    protected static final boolean FIRESTATION = true;
-    protected static final boolean NOTFIRESTATION = !FIRESTATION; //sets to false
+    final static String FILENAME = "communityInput_";
 
     private int bestNumOfFS = 0;
     private int mapIndex;
@@ -31,22 +28,17 @@ public class Graph {
         this.cityMap = new ArrayList<Node>();
         this.setMap(mapIndex);
         this.getBestSolution();
-        System.out.println("Final num of FS: " + this.bestNumOfFS); // failed !!!!!!!!!!!!!!!!!!!!
+        System.out.println("\nFinal result:\nnum of FS: " + this.bestNumOfFS);
     }
 //------------------------------------------------------------
     private void getBestSolution(){
-
-        ArrayList<Node> tempCity = new ArrayList<Node>();
-        tempCity = this.cloneNodes(cityMap, tempCity);
-        
+        ArrayList<Node> tempCity = new ArrayList<Node>();        
         for (int i = 0; i < this.cityMap.size(); i++){
             System.out.printf("We are starting at Node %d\n", i);
-            this.bestSolution = this.createFireStations(tempCity, i, 0);
-            System.out.println(tempCity.toString());
             tempCity.clear();
             this.cloneNodes(cityMap, tempCity);
+            this.createFireStations(tempCity, i);
         }
-
     }
 
     private ArrayList<Node> cloneNodes(ArrayList<Node> inputMap, ArrayList<Node> outputMap){
@@ -57,13 +49,13 @@ public class Graph {
     }
 
 //------------------------------------------------------------
-    private ArrayList<Node> createFireStations(ArrayList<Node> currentMap, int currentIndex, int numOfFS){ // key method !!!!!!!!!!
-        this.printCurrentMap(currentMap);
-        if( (this.bestNumOfFS!= 0) && (numOfFS>this.bestNumOfFS) ){
-            return null;        // base case: not the best solution
+    private int createFireStations(ArrayList<Node> currentMap, int currentIndex){ // key method !!!!!!!!!!
+        //this.printCurrentMap(currentMap);
+        int numberOfFS = this.numberOfFirestations(currentMap);
+        if( (this.bestNumOfFS!= 0) && (numberOfFS>this.bestNumOfFS) ){
+            return -1;        // base case: not the best solution
         }
         
-//Kylie: I believe there is a better way to check if every node is protected
         boolean allProtected = true;
         for(int mIdx=0; mIdx<currentMap.size(); mIdx++){
             if(!currentMap.get(mIdx).isProtected()){
@@ -72,20 +64,19 @@ public class Graph {
             }
         }
         if(allProtected){  // base case: if every node is protected, work finish
-            System.out.println("Finish work with " + numOfFS + " fire station(s). ");
-            this.bestNumOfFS = numOfFS;  // failed !!!!!!!!!!!!!!!!!!!!
+            System.out.println("Finish work with " + numberOfFS + " fire station(s). ");
+            this.bestNumOfFS = numberOfFS;
             this.printCurrentMap(currentMap);
-            return currentMap;
+            return numberOfFS;
         }   
         Node currentNode = currentMap.get(currentIndex);
         ArrayList<Integer> childrenList = currentNode.getConnectionList();
         if(currentNode.hasVisited()){
-            return null;
+            return -1;
         }else{
             currentNode.setVisited();
             if(!currentNode.isProtected()){
                 currentNode.setFireStation();
-                numOfFS = numOfFS +1;
                 /*********set currentNode's children as protected**********/
                 for(int c=0; c<childrenList.size(); c++){
                     currentMap.get(childrenList.get(c)).setProtected();
@@ -93,10 +84,10 @@ public class Graph {
             }
             /*********recursion: move to its children**********/
             for(int c=0; c<childrenList.size(); c++){
-                createFireStations(currentMap, childrenList.get(c), numOfFS);
+                createFireStations(currentMap, childrenList.get(c));
             } 
         }
-        return null;
+        return -1;
     }
 //------------------------------------------------------------
     private void printCurrentMap(ArrayList<Node> currentMap){ // for debugging
@@ -122,7 +113,7 @@ public class Graph {
         }
         System.out.println(city);
     }
-
+//------------------------------------------------------------
     private int numberOfFirestations(ArrayList<Node> currentMap){
         Node currentNode;
         int numOfFirestations = 0;
@@ -134,7 +125,6 @@ public class Graph {
         }
         return numOfFirestations;
     }
-
 //------------------------------------------------------------
     @Override
     public String toString(){
@@ -151,7 +141,7 @@ public class Graph {
 //------------------------------------------------------------
     public void setMap(int mapIndex){
         try{
-            fileReader = new FileReader("TestCases/" + fileName + mapIndex + ".txt");
+            fileReader = new FileReader("TestCases/" + FILENAME + mapIndex + ".txt");
             input = new BufferedReader(fileReader);
             String str;
             int nodeIndex;
@@ -179,7 +169,7 @@ public class Graph {
 //-----------------------------------------------------------------------------------------
     private class Node{
         private int item;
-        private boolean isFireStation = NOTFIRESTATION;
+        private boolean isFireStation = false;
         private boolean isProtected = false;
         private boolean visited = false;
         private ArrayList<Integer> connectionList;
@@ -209,7 +199,7 @@ public class Graph {
             return new Node(this.item, this.connectionList);
         }
 //---------------------------setters---------------------------
-        private void setFireStation(){ //boolean stat){
+        private void setFireStation(){
             this.isFireStation = true;
             this.isProtected = true;
         }

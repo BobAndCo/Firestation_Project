@@ -10,7 +10,7 @@ public class Main{
     public static void main(String[] args){
 
         Graph city1 = new Graph(1);
-        System.out.print(city1);
+//        System.out.print(city1);
         
     }
 
