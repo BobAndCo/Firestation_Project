@@ -5,6 +5,7 @@ run:
 	javac *.java
 	java Main
 	rm *.class
+	rm *.java~
 
 clean:
 	rm *.class
