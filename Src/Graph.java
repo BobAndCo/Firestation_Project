@@ -1,8 +1,6 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Collections;
 
 /**[Graph.java]
@@ -14,32 +12,53 @@ import java.util.Collections;
 
 public class Graph {
     protected ArrayList<Node> cityMap;
+    private ArrayList<Node> bestSolution;
+
     static FileReader fileReader;
-    static String fileName = "communityInput_";
     static BufferedReader input;
+
+    static String fileName = "communityInput_";
+
     protected static final boolean FIRESTATION = true;
     protected static final boolean NOTFIRESTATION = !FIRESTATION; //sets to false
+
     private int bestNumOfFS = 0;
-    private ArrayList<Node> bestSolution;
+    private int mapIndex;
 
 //------------------------------------------------------------
     Graph(int mapIndex){
-        this.cityMap = new ArrayList<Node> ();
+        this.mapIndex = mapIndex;
+        this.cityMap = new ArrayList<Node>();
         this.setMap(mapIndex);
         this.getBestSolution();
         System.out.println("Final num of FS: " + this.bestNumOfFS); // failed !!!!!!!!!!!!!!!!!!!!
     }
 //------------------------------------------------------------
     private void getBestSolution(){
-        this.bestSolution = this.createFireStations(cityMap, 1, 0); // only testing node 0 first
-        /*
-         * to be implement: call createFireStations for each node 
-         */
-        return;
+
+        ArrayList<Node> tempCity = new ArrayList<Node>();
+        tempCity = this.cloneNodes(cityMap, tempCity);
+        
+        for (int i = 0; i < this.cityMap.size(); i++){
+            System.out.printf("We are starting at Node %d\n", i);
+            this.bestSolution = this.createFireStations(tempCity, i, 0);
+            System.out.println(tempCity.toString());
+            tempCity.clear();
+            this.cloneNodes(cityMap, tempCity);
+        }
+
     }
+
+    private ArrayList<Node> cloneNodes(ArrayList<Node> inputMap, ArrayList<Node> outputMap){
+        for (int i = 0; i < inputMap.size(); i++){
+            outputMap.add(inputMap.get(i).copyNode());
+        }
+        return outputMap;
+    }
+
 //------------------------------------------------------------
     private ArrayList<Node> createFireStations(ArrayList<Node> currentMap, int currentIndex, int numOfFS){ // key method !!!!!!!!!!
-        //this.printCurrentMap(currentMap);
+        this.printCurrentMap(currentMap);
         if( (this.bestNumOfFS!= 0) && (numOfFS>this.bestNumOfFS) ){
             return null;        // base case: not the best solution
         }
@@ -103,6 +122,19 @@ public class Graph {
         }
         System.out.println(city);
     }
+
+    private int numberOfFirestations(ArrayList<Node> currentMap){
+        Node currentNode;
+        int numOfFirestations = 0;
+        for (int i = 0; i < currentMap.size(); i++){
+            currentNode = currentMap.get(i);
+            if (currentNode.isFireStation()){
+                numOfFirestations++;
+            }
+        }
+        return numOfFirestations;
+    }
+
 //------------------------------------------------------------
     @Override
     public String toString(){
@@ -171,6 +203,10 @@ public class Graph {
         }
         public ArrayList<Integer> getConnectionList(){
             return this.connectionList;
+        }
+
+        public Node copyNode(){
+            return new Node(this.item, this.connectionList);
         }
 //---------------------------setters---------------------------
         private void setFireStation(){ //boolean stat){

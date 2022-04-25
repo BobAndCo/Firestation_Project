@@ -12,9 +12,6 @@ public class Main{
         Graph city1 = new Graph(1);
         System.out.print(city1);
         
-//        Graph city2 = new Graph(2);
-//        System.out.print(city2);
-        
     }
 
 }
