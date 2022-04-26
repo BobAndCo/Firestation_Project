@@ -19,7 +19,7 @@ public class Graph {
 
     final static String FILENAME = "communityInput_";
 
-    public static int bestNumOfFS = 0;
+    public int bestNumOfFS = 0;
     private int mapIndex;
 
 //------------------------------------------------------------
@@ -27,7 +27,7 @@ public class Graph {
         this.mapIndex = mapIndex;
         this.cityMap = new ArrayList<Node>();
         this.setMap(mapIndex);
-        Visualizer v = new Visualizer(this.cityMap.getConnections());
+        //Visualizer v = new Visualizer(this.cityMap.getConnections());
     }
 //------------------------------------------------------------
     public void getBestSolution(){
@@ -66,7 +66,7 @@ public class Graph {
             System.out.println("Finish work with " + numberOfFS + " fire station(s). ");
             this.bestNumOfFS = numberOfFS;
             System.out.print(this.printCurrentMap(currentMap));
-            v.print();
+            //v.print();
             return numberOfFS;
         }   
         Node currentNode = currentMap.get(currentIndex);
