@@ -17,5 +17,5 @@ cleanWindows:
 
 runWindows:
 	javac *.java
-	java Window
+	java Main
 	del /f *.class
