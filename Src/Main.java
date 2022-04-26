@@ -10,6 +10,8 @@ public class Main{
     public static void main(String[] args){
 
         Graph city1 = new Graph(2);
+        city1.getBestSolution();
+        System.out.println("\nFinal result:\nnum of FS: " + city1.bestNumOfFS);
 //        System.out.print(city1);
         
     }

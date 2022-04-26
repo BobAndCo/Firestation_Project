@@ -6,7 +6,7 @@ import java.util.Collections;
 /**[Graph.java]
   * This is Algorithms Assignment - Fire Stations Planner 
   * This is a class representing the community(graph)
-  * @author Khrush, Kylie, Alon - ICS4UE
+  * @author Khush, Kylie, Alon - ICS4UE
   * @version1.1, April 21, 2022
   */
 
@@ -19,7 +19,7 @@ public class Graph {
 
     final static String FILENAME = "communityInput_";
 
-    private int bestNumOfFS = 0;
+    public static int bestNumOfFS = 0;
     private int mapIndex;
 
 //------------------------------------------------------------
@@ -27,11 +27,10 @@ public class Graph {
         this.mapIndex = mapIndex;
         this.cityMap = new ArrayList<Node>();
         this.setMap(mapIndex);
-        this.getBestSolution();
-        System.out.println("\nFinal result:\nnum of FS: " + this.bestNumOfFS);
+        Visualizer v = new Visualizer(this.cityMap.getConnections());
     }
 //------------------------------------------------------------
-    private void getBestSolution(){
+    public void getBestSolution(){
         ArrayList<Node> tempCity = new ArrayList<Node>();        
         for (int i = 0; i < this.cityMap.size(); i++){
             System.out.printf("We are starting at Node %d\n", i);
@@ -66,7 +65,8 @@ public class Graph {
         if(allProtected){  // base case: if every node is protected, work finish
             System.out.println("Finish work with " + numberOfFS + " fire station(s). ");
             this.bestNumOfFS = numberOfFS;
-            this.printCurrentMap(currentMap);
+            System.out.print(this.printCurrentMap(currentMap));
+            v.print();
             return numberOfFS;
         }   
         Node currentNode = currentMap.get(currentIndex);
@@ -90,7 +90,7 @@ public class Graph {
         return -1;
     }
 //------------------------------------------------------------
-    private void printCurrentMap(ArrayList<Node> currentMap){ // for debugging
+    public String printCurrentMap(ArrayList<Node> currentMap){ // for debugging
         System.out.println("--------------currentMap--------" + this.bestNumOfFS);
         String city = "";
         String temp = "";
@@ -111,7 +111,7 @@ public class Graph {
             
             city += " - " + temp + "\n";
         }
-        System.out.println(city);
+        return city;
     }
 //------------------------------------------------------------
     private int numberOfFirestations(ArrayList<Node> currentMap){
