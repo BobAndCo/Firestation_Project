@@ -42,6 +42,7 @@ public class Graph {
             this.createFireStations(cityMap, i);
             System.out.println("This called " + counter + " times");
         }
+        //this.createFireStations(cityMap, 1);
     }
     private void reset(){
         for(int i=0; i<this.cityMap.size(); i++){
@@ -59,8 +60,13 @@ public class Graph {
         counter = counter+1;
         int numberOfFS = this.currentNumOfFS;
         //same numOfFS, different coloring, doesn't rlly matter
-        if( (this.bestNumOfFS!= 0) && (this.currentNumOfFS>=this.bestNumOfFS) ){ 
+        if( (this.bestNumOfFS!= 0) && (this.currentNumOfFS>=this.bestNumOfFS) ){
+            //System.out.print(numberOfFS + " From Node " + currentIndex + "---------currentMap---------\n" + this.printCurrentMap(currentMap));
             return;        // base case: not the best solution
+        }
+        if(this.currentNumOfFS > this.cityMap.size()/2){
+            System.out.println("waste");
+            return;
         }
         //System.out.print(numberOfFS + " From Node " + currentIndex + "---------currentMap---------\n" + this.printCurrentMap(currentMap));
         
@@ -81,10 +87,38 @@ public class Graph {
         }   
         Node currentNode = currentMap.get(currentIndex);
         ArrayList<Integer> childrenList = currentNode.getConnectionList();
+        int childrenSize = childrenList.size();
         currentNode.setVisited();
         if(!currentNode.isProtected()){
-            currentNode.setFireStation();
-            this.currentNumOfFS = this.currentNumOfFS + 1;
+            if(childrenSize>1){
+                if(childrenSize>2){
+                    currentNode.setFireStation();
+                    this.currentNumOfFS += 1;
+                }else{
+                    int numOfProtected =0;
+                    int numOfchildreIsFS=0;
+                    for(int chP=0; chP<childrenSize; chP++){
+                        if(cityMap.get(childrenList.get(chP)).isProtected()){
+                            numOfProtected++;
+                        }
+                        if(cityMap.get(childrenList.get(chP)).isFireStation()){
+                            numOfchildreIsFS++;
+                        }
+                    }
+                    if(numOfProtected !=2){
+                        currentNode.setFireStation();
+                        this.currentNumOfFS += 1;
+                    }else{
+                        if(numOfchildreIsFS==0){
+                            currentNode.setFireStation();
+                            this.currentNumOfFS += 1;
+                        }
+                    }
+                }
+            }else{
+                currentNode.setFireStation();
+                this.currentNumOfFS += 1;
+            }
             /*********set currentNode's children as protected**********/
             for(int c=0; c<childrenList.size(); c++){
                 currentMap.get(childrenList.get(c)).setProtected();
@@ -127,6 +161,7 @@ public class Graph {
     public ArrayList<Node> getBestSolutionMap(){
         return this.bestSolutionMap;
     }
+//------------------------------------------------------------
     public int getbestNumOfFS(){
         return this.bestNumOfFS;
     }
