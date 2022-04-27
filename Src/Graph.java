@@ -12,7 +12,7 @@ import java.util.Collections;
 
 public class Graph {
     protected ArrayList<Node> cityMap;
-    private ArrayList<Node> bestSolution;
+    public ArrayList<Node> bestSolutionMap;
 
     static FileReader fileReader;
     static BufferedReader input;
@@ -21,39 +21,48 @@ public class Graph {
 
     public int bestNumOfFS = 0;
     private int mapIndex;
+    private int currentNumOfFS=0;
 
 //------------------------------------------------------------
     Graph(int mapIndex){
         this.mapIndex = mapIndex;
         this.cityMap = new ArrayList<Node>();
+        this.bestSolutionMap = new ArrayList<Node>();
         this.setMap(mapIndex);
         //Visualizer v = new Visualizer(this.cityMap.getConnections());
     }
+    public int counter = 0; // for debug 
 //------------------------------------------------------------
     public void getBestSolution(){
-        ArrayList<Node> tempCity = new ArrayList<Node>();        
         for (int i = 0; i < this.cityMap.size(); i++){
+            this.counter =0;
+            this.currentNumOfFS = 0;
             System.out.printf("We are starting at Node %d\n", i);
-            tempCity.clear();
-            this.cloneNodes(cityMap, tempCity);
-            this.createFireStations(tempCity, i);
+            this.reset();
+            this.createFireStations(cityMap, i);
+            System.out.println("This called " + counter + " times");
         }
     }
-
+    private void reset(){
+        for(int i=0; i<this.cityMap.size(); i++){
+            cityMap.get(i).resetNode();
+        }
+    }
     private ArrayList<Node> cloneNodes(ArrayList<Node> inputMap, ArrayList<Node> outputMap){
         for (int i = 0; i < inputMap.size(); i++){
             outputMap.add(inputMap.get(i).copyNode());
         }
         return outputMap;
     }
-
 //------------------------------------------------------------
-    private int createFireStations(ArrayList<Node> currentMap, int currentIndex){ // key method !!!!!!!!!!
-        //this.printCurrentMap(currentMap);
-        int numberOfFS = this.numberOfFirestations(currentMap);
-        if( (this.bestNumOfFS!= 0) && (numberOfFS>this.bestNumOfFS) ){
-            return -1;        // base case: not the best solution
+    private void createFireStations(ArrayList<Node> currentMap, int currentIndex){ // key method !!!!!!!!!!
+        counter = counter+1;
+        int numberOfFS = this.currentNumOfFS;
+        //same numOfFS, different coloring, doesn't rlly matter
+        if( (this.bestNumOfFS!= 0) && (this.currentNumOfFS>=this.bestNumOfFS) ){ 
+            return;        // base case: not the best solution
         }
+        //System.out.print(numberOfFS + " From Node " + currentIndex + "---------currentMap---------\n" + this.printCurrentMap(currentMap));
         
         boolean allProtected = true;
         for(int mIdx=0; mIdx<currentMap.size(); mIdx++){
@@ -65,33 +74,34 @@ public class Graph {
         if(allProtected){  // base case: if every node is protected, work finish
             System.out.println("Finish work with " + numberOfFS + " fire station(s). ");
             this.bestNumOfFS = numberOfFS;
-            System.out.print(this.printCurrentMap(currentMap));
+            this.bestSolutionMap.clear();
+            this.cloneNodes(currentMap, this.bestSolutionMap);
             //v.print();
-            return numberOfFS;
+            return;
         }   
         Node currentNode = currentMap.get(currentIndex);
         ArrayList<Integer> childrenList = currentNode.getConnectionList();
-        if(currentNode.hasVisited()){
-            return -1;
-        }else{
-            currentNode.setVisited();
-            if(!currentNode.isProtected()){
-                currentNode.setFireStation();
-                /*********set currentNode's children as protected**********/
-                for(int c=0; c<childrenList.size(); c++){
-                    currentMap.get(childrenList.get(c)).setProtected();
-                }  
-            }
-            /*********recursion: move to its children**********/
+        currentNode.setVisited();
+        if(!currentNode.isProtected()){
+            currentNode.setFireStation();
+            this.currentNumOfFS = this.currentNumOfFS + 1;
+            /*********set currentNode's children as protected**********/
             for(int c=0; c<childrenList.size(); c++){
-                createFireStations(currentMap, childrenList.get(c));
-            } 
+                currentMap.get(childrenList.get(c)).setProtected();
+            }  
         }
-        return -1;
+        /*********recursion: move to its children**********/
+        for(int c=childrenList.size()-1; c>=0; c--){
+            int childIdx = childrenList.get(c);
+            if(!currentMap.get(childIdx).hasVisited()){
+                createFireStations(currentMap, childIdx);
+            }
+        } 
+        return;
     }
 //------------------------------------------------------------
     public String printCurrentMap(ArrayList<Node> currentMap){ // for debugging
-        System.out.println("--------------currentMap--------" + this.bestNumOfFS);
+        //System.out.println("---------currentMap---------");
         String city = "";
         String temp = "";
         Node currentNode;
@@ -128,7 +138,7 @@ public class Graph {
 //------------------------------------------------------------
     @Override
     public String toString(){
-        String city = "\nFinal toString method\n";
+        String city = "\ntoString method\n";
         String temp = "";
 
         for(int i=0; i<this.cityMap.size(); i++){
@@ -178,25 +188,38 @@ public class Graph {
             this.item = number;
             this.connectionList = connections;
         }
+        Node(int number, ArrayList<Integer> connections, boolean isFS, boolean isP, boolean isVis){
+            this.item = number;
+            this.connectionList = connections;
+            this.isFireStation = isFS;
+            this.isProtected = isP;
+            this.visited = isVis;
+        }
 //---------------------------getters---------------------------
-        public int getItem(){
+        private int getItem(){
             return this.item;
         }
-        public boolean isFireStation(){
+        private boolean isFireStation(){
             return this.isFireStation;
         }
-        public boolean isProtected(){
+        private boolean isProtected(){
             return this.isProtected;
         }
-        public boolean hasVisited(){
+        private boolean hasVisited(){
             return this.visited;
         }
-        public ArrayList<Integer> getConnectionList(){
+        private ArrayList<Integer> getConnectionList(){
             return this.connectionList;
         }
 
-        public Node copyNode(){
-            return new Node(this.item, this.connectionList);
+        private Node copyNode(){
+            return new Node(this.item, this.connectionList, this.isFireStation, this.isProtected, this.visited);
+        }
+        
+        public void resetNode(){
+           this.isFireStation = false;
+           this.isProtected = false;
+           this.visited = false;
         }
 //---------------------------setters---------------------------
         private void setFireStation(){

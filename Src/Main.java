@@ -9,10 +9,11 @@ public class Main{
 
     public static void main(String[] args){
 
-        Graph city1 = new Graph(1);
+        Graph city1 = new Graph(6);
         city1.getBestSolution();
-        System.out.println("\nFinal result:\nnum of FS: " + city1.bestNumOfFS);
-//        System.out.print(city1);
+        System.out.println("\nFinal result printed in Main.class:\nnumber of Fire Station: " + city1.bestNumOfFS);
+        System.out.println(city1.printCurrentMap(city1.bestSolutionMap));
+        //System.out.print(city1);
         
     }
 
