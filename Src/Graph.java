@@ -12,14 +12,14 @@ import java.util.Collections;
 
 public class Graph {
     protected ArrayList<Node> cityMap;
-    public ArrayList<Node> bestSolutionMap;
+    private ArrayList<Node> bestSolutionMap;
 
     static FileReader fileReader;
     static BufferedReader input;
 
     final static String FILENAME = "communityInput_";
 
-    public int bestNumOfFS = 0;
+    private int bestNumOfFS = 0;
     private int mapIndex;
     private int currentNumOfFS=0;
 
@@ -135,6 +135,12 @@ public class Graph {
         }
         return numOfFirestations;
     }
+    public ArrayList<Node> getBestSolutionMap(){
+        return this.bestSolutionMap;
+    }
+    public int getbestNumOfFS(){
+        return this.bestNumOfFS;
+    }
 //------------------------------------------------------------
     @Override
     public String toString(){
@@ -188,7 +194,7 @@ public class Graph {
             this.item = number;
             this.connectionList = connections;
         }
-        Node(int number, ArrayList<Integer> connections, boolean isFS, boolean isP, boolean isVis){
+        private Node(int number, ArrayList<Integer> connections, boolean isFS, boolean isP, boolean isVis){
             this.item = number;
             this.connectionList = connections;
             this.isFireStation = isFS;
