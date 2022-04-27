@@ -124,17 +124,6 @@ public class Graph {
         return city;
     }
 //------------------------------------------------------------
-    private int numberOfFirestations(ArrayList<Node> currentMap){
-        Node currentNode;
-        int numOfFirestations = 0;
-        for (int i = 0; i < currentMap.size(); i++){
-            currentNode = currentMap.get(i);
-            if (currentNode.isFireStation()){
-                numOfFirestations++;
-            }
-        }
-        return numOfFirestations;
-    }
     public ArrayList<Node> getBestSolutionMap(){
         return this.bestSolutionMap;
     }
