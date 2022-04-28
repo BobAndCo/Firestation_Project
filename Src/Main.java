@@ -8,11 +8,32 @@
 public class Main{
 
     public static void main(String[] args){
-
-        Graph city1 = new Graph(0);
+        long start, end;  
+        double executionTime;
+        
+        start = System.nanoTime(); 
+               
+        Graph city1 = new Graph(1);
         city1.getBestSolution();
         System.out.println("\nFinal result printed in Main.class:\nnumber of Fire Station: " + city1.getbestNumOfFS());
         System.out.println(city1.printCurrentMap(city1.getBestSolutionMap()));
+        
+        end = System.nanoTime(); 
+        executionTime = (end - start)/1000000.0; 
+        System.out.println("This took: " + executionTime + "ms");
+        
+        /*************************************************/
+        start = System.nanoTime(); 
+        Community com = new Community(1);
+        com.findBestSolution();
+        
+        System.out.println("best solution: " + com.getbestNumOfFS());
+        System.out.println(com.printCurrentMap(com.getBestSolutionMap()));
+        
+        end = System.nanoTime(); 
+        executionTime = (end - start)/1000000.0; 
+        System.out.println("This took: " + executionTime + "ms");
     }
+    
 
 }
