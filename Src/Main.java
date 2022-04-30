@@ -10,7 +10,17 @@ public class Main{
     public static void main(String[] args){
         long start, end;  
         double executionTime;
+        start = System.nanoTime(); 
+                
+        NewCommunity com1 = new NewCommunity(1); // map 5 - infinite loop , map 7 - don't have single node
+        com1.callMethod();
+        System.out.println(com1);
         
+        end = System.nanoTime(); 
+        executionTime = (end - start)/1000000.0; 
+        System.out.println("This took: " + executionTime + "ms");
+        
+        /*
         start = System.nanoTime(); 
                
         Graph city1 = new Graph(1);
@@ -22,10 +32,11 @@ public class Main{
         executionTime = (end - start)/1000000.0; 
         System.out.println("This took: " + executionTime + "ms");
         
-        /*************************************************/
+        //////////////////////////////////
         start = System.nanoTime(); 
         Community com = new Community(1);
-        com.findBestSolution();
+        com.callMethod();
+        //com.findBestSolution();
         
         System.out.println("best solution: " + com.getbestNumOfFS());
         System.out.println(com.printCurrentMap(com.getBestSolutionMap()));
@@ -33,7 +44,6 @@ public class Main{
         end = System.nanoTime(); 
         executionTime = (end - start)/1000000.0; 
         System.out.println("This took: " + executionTime + "ms");
+        */
     }
-    
-
 }
