@@ -78,10 +78,28 @@ public class NewCommunity {
             }
         }else{
             System.out.println("visistedNodes: " + visitedNodes.toString());
+            boolean haveWay = false;
+            int index=0;
             for(int ch=0; ch<childrenList.size(); ch++){
-                int index = childrenList.get(ch);
+                index = childrenList.get(ch);
                 if(!visitedNodes.contains(index)){
+                    haveWay = true;
                     recursionMethod(hashMap, fsList, index, visitedNodes);
+                }
+            }
+            if(!haveWay){
+                fsList.add(index);
+                //System.out.println("nodeIndex: " + nodeIndex + "  current hashmap:\n" + hashMap.toString()+ "\n");
+                ArrayList<Integer> fsConnectionList = this.eraseConnection(hashMap, index);
+                
+                for(int callCh=0; callCh<fsConnectionList.size(); callCh++){
+                    System.out.println("children:" + fsConnectionList.get(callCh) );
+                    int callIndex = fsConnectionList.get(callCh);
+                    if(hashMap.containsKey(callIndex) ){
+                        recursionMethod(hashMap, fsList, callIndex, visitedNodes);
+                    }else if (fsConnectionList.size()==1){ // missing the last node 
+                        fsList.add(callIndex);
+                    }
                 }
             }
         }
