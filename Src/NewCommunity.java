@@ -16,7 +16,7 @@ import java.util.HashSet;
   */
 
 public class NewCommunity {
-    private ArrayList<Integer> fireStationList;
+    private HashSet<Integer> fireStationList;
     private HashMap<Integer, ArrayList<Integer>> community;
 
     static FileReader fileReader;
@@ -30,13 +30,13 @@ public class NewCommunity {
     NewCommunity(int mapIndex){
         this.mapIndex = mapIndex;
         this.community = new HashMap<Integer, ArrayList<Integer>>();    // key, value
-        this.fireStationList = new ArrayList<Integer>();
+        this.fireStationList = new HashSet<Integer>();
         this.setMap(mapIndex);
     }
     
     public void callMethod(){
         HashMap<Integer, ArrayList<Integer>> tempCommunity = new HashMap<Integer, ArrayList<Integer>>();
-        ArrayList<Integer> tempFSList = new ArrayList<Integer>();
+        HashSet<Integer> tempFSList = new HashSet<Integer>();
         HashSet<Integer> tempVisited = new HashSet<Integer>();
         for(Integer nodeIndex : this.community.keySet()){ //pass in a duplicate of the HashMap
             tempCommunity.put(nodeIndex, this.community.get(nodeIndex));
@@ -48,8 +48,8 @@ public class NewCommunity {
         //System.out.print("FINAL tempCommunity: " + tempCommunity);
     }
 //------------------------------------------------------------
-    public ArrayList<Integer> recursionMethod(HashMap<Integer, ArrayList<Integer>> hashMap, 
-                                              ArrayList<Integer> fsList, int nodeIndex, HashSet<Integer> visitedNodes){
+    public HashSet<Integer> recursionMethod(HashMap<Integer, ArrayList<Integer>> hashMap, 
+                                              HashSet<Integer> fsList, int nodeIndex, HashSet<Integer> visitedNodes){
         System.out.println("--------------------------------\nnodeIndex: " + nodeIndex + "  current hashmap:\n" + hashMap.toString()+ "\n");
         System.out.println("firestation list: " + fsList.toString());
         if(hashMap.size()==0){            //base case: 
@@ -62,22 +62,16 @@ public class NewCommunity {
             Integer childIndex = childrenList.get(0);
             System.out.println("find the single child at " + nodeIndex);
             //System.out.println("YES");
-            fsList.add(childIndex);
-            //System.out.println("nodeIndex: " + nodeIndex + "  current hashmap:\n" + hashMap.toString()+ "\n");
-            ArrayList<Integer> fsConnectionList = this.eraseConnection(hashMap, childIndex);
-            System.out.println("\narr: " + fsConnectionList.toString() + "  - " + fsConnectionList.size() + "\n");
-            //System.out.println("nodeIndex: " + nodeIndex + "  current hashmap:\n" + hashMap.toString()+ "\n");
+            ArrayList<Integer> fsConnectionList = this.makeFirestation(hashMap, fsList, childIndex);
             for(int callCh=0; callCh<fsConnectionList.size(); callCh++){
-                System.out.println("children:" + fsConnectionList.get(callCh) );
+                //System.out.println("children:" + fsConnectionList.get(callCh) );
                 int callIndex = fsConnectionList.get(callCh);
                 if(hashMap.containsKey(callIndex) ){
                     recursionMethod(hashMap, fsList, callIndex, visitedNodes);
-                }else if (fsConnectionList.size()==1){ // missing the last node 
-                    fsList.add(callIndex);
                 }
             }
         }else{
-            System.out.println("visistedNodes: " + visitedNodes.toString());
+            //System.out.println("visistedNodes: " + visitedNodes.toString());
             boolean haveWay = false;
             int index=0;
             for(int ch=0; ch<childrenList.size(); ch++){
@@ -88,25 +82,26 @@ public class NewCommunity {
                 }
             }
             if(!haveWay){
-                fsList.add(index);
-                //System.out.println("nodeIndex: " + nodeIndex + "  current hashmap:\n" + hashMap.toString()+ "\n");
-                ArrayList<Integer> fsConnectionList = this.eraseConnection(hashMap, index);
+                ArrayList<Integer> fsConnectionList = this.makeFirestation(hashMap, fsList, index);
                 
                 for(int callCh=0; callCh<fsConnectionList.size(); callCh++){
-                    System.out.println("children:" + fsConnectionList.get(callCh) );
+                    //System.out.println("children:" + fsConnectionList.get(callCh) );
                     int callIndex = fsConnectionList.get(callCh);
                     if(hashMap.containsKey(callIndex) ){
                         recursionMethod(hashMap, fsList, callIndex, visitedNodes);
-                    }else if (fsConnectionList.size()==1){ // missing the last node 
-                        fsList.add(callIndex);
                     }
                 }
             }
         }
         return fsList;
     }
+    private  ArrayList<Integer> makeFirestation(HashMap<Integer, ArrayList<Integer>> hashMap, HashSet<Integer> fsList, int fsIndex){
+        fsList.add(fsIndex);
+        ArrayList<Integer> fsConnectionList = this.eraseConnection(hashMap, fsList, fsIndex);
+        return fsConnectionList;
+    }
     //return the connection list of that fire station
-    private ArrayList<Integer> eraseConnection(HashMap<Integer, ArrayList<Integer>> hashMap, Integer fireStationIdx){
+    private ArrayList<Integer> eraseConnection(HashMap<Integer, ArrayList<Integer>> hashMap, HashSet<Integer> fsList, Integer fireStationIdx){
         ArrayList<Integer> returnConnectionList = new ArrayList<Integer>();
         ArrayList<Integer> currentNodeChildren = hashMap.get(fireStationIdx); //get connection of the FS
         
@@ -119,6 +114,7 @@ public class NewCommunity {
             deleteList.add(currentNodeChildren.get(i));
             returnConnectionList.add(currentNodeChildren.get(i));
         }
+        System.out.println("hashMap before erase: " + hashMap.toString());
         
         for(Integer c : hashMap.keySet()){ // for every node 
             ArrayList<Integer> childrenList = hashMap.get(c); 
@@ -130,13 +126,15 @@ public class NewCommunity {
             
             ArrayList<Integer> temp = new ArrayList<>(originalList);
             childrenList = temp;
+            System.out.println(c+ " -- childrenlist: " + childrenList);
+            
             //update connections between nodes
             hashMap.replace(c, childrenList);
             if(childrenList.isEmpty()){
                 returnConnectionList.remove(c);
             }
-              //System.out.println("childrenlist: " + childrenList);
         }
+        
         //remove all node that have no connection
         ArrayList<Integer> myList = new ArrayList<Integer>();
         hashMap.values().removeAll(Collections.singleton(myList));
@@ -145,8 +143,20 @@ public class NewCommunity {
         returnConnectionList.clear();
         for(Integer deleteIdx : deleteList){
             returnConnectionList.addAll(hashMap.get(deleteIdx));
-            hashMap.remove(deleteIdx);
+            ArrayList<Integer> deleteNodeConnection = hashMap.get(deleteIdx);
+            for(int d=0; d<deleteNodeConnection.size(); d++){
+                int index =  deleteNodeConnection.get(d);
+                if(!hashMap.containsKey(index)){
+                    //System.out.println(deleteNodeConnection.get(d) + "  Found the SINGLE SINGLE NODE");
+                    fsList.add(index);
+                }
+            }
+            hashMap.remove(deleteIdx); // remove all node that are protected / is a FS
         }
+        Set<Integer> set = new HashSet<Integer>(returnConnectionList);
+        returnConnectionList.clear();
+        returnConnectionList.addAll(set);
+        
         System.out.println("returnConnectionList: " + returnConnectionList.toString());
         System.out.println("from the list (delete): " + deleteList.toString());
         System.out.println(hashMap.toString());

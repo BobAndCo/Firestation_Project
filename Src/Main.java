@@ -12,7 +12,7 @@ public class Main{
         double executionTime;
         start = System.nanoTime(); 
                 
-        NewCommunity com1 = new NewCommunity(0); // map0, map 5 - null exception, map 7 - don't have single node
+        NewCommunity com1 = new NewCommunity(0); // map0, map 5 - null exception
         //all works, problem: some node is lost when it has no connection but not yet protected 
         //- find that node and set it as FS
         
