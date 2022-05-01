@@ -35,4 +35,4 @@ We number the city starting from 0 - n and then we add a '-' after which we add 
 3 - 2, 4 </br>
 4 - 1, 3 </br>
 
-![](images/sampleCity.png | width=100)
+![](images/sampleCity.png)
