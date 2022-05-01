@@ -11,5 +11,6 @@ public class Main{
         Community com1 = new Community(5);
         com1.fireStationPlanner();
         System.out.println(com1);
+        Visualizer v = new Visualizer(com1);
     }
 }
