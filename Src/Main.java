@@ -1,3 +1,4 @@
+import java.io.File;
 /**[Main.java]
   * This is Algorithms Assignment - Fire Stations Planner
   * This is the main method 
@@ -6,18 +7,9 @@
   */
 
 public class Main{
-    public static void main(String[] args){
-        long start, end;  
-        double executionTime;
-        
-        start = System.nanoTime(); 
-                
-        NewCommunity com1 = new NewCommunity(7);
+    public static void main(String[] args){  
+        Community com1 = new Community(5);
         com1.fireStationPlanner();
         System.out.println(com1);
-        
-        end = System.nanoTime(); 
-        executionTime = (end - start)/1000000.0; 
-        System.out.println("This took: " + executionTime + "ms");
     }
 }

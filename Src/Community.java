@@ -2,157 +2,180 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 /**[Graph.java]
   * This is Algorithms Assignment - Fire Stations Planner 
-  * This is a class representing the community(graph)
+  * This is a class representing the community
   * @author Khush, Kylie, Alon - ICS4UE
-  * @version1.1, April 21, 2022
+  * @version 3.1, April 30, 2022
   */
 
-public class Community {
-    private ArrayList<Node> cityMap;
-    private ArrayList<Node> bestSolutionMap;
+public class Community{
+    private HashSet<Integer> fireStationList;
+    private HashMap<Integer, ArrayList<Integer>> communityMap;
 
     static FileReader fileReader;
     static BufferedReader input;
 
-    final static String FILENAME = "communityInput_";
+    final static String FILENAME = "communityMapInput_";
 
-    private int bestNumOfFS = 0;
     private int mapIndex;
-    private int currentNumOfFS=0;
-
+    
 //------------------------------------------------------------
     Community(int mapIndex){
         this.mapIndex = mapIndex;
-        this.cityMap = new ArrayList<Node>();
-        this.bestSolutionMap = new ArrayList<Node>();
+        this.communityMap = new HashMap<Integer, ArrayList<Integer>>(); // key, value
+        this.fireStationList = new HashSet<Integer>();
         this.setMap(mapIndex);
-        this.bestNumOfFS = cityMap.size()/2;
-        //System.out.println("testing:" + helper(12));
     }
-    
-    
-    /*****************try every solution, store the best one**********************/
-    public void findBestSolution(){ // return 
-        for(int i=1; i<(int)Math.pow(2, cityMap.size()); i++){
-            this.resetOriginalMap();
-            String config = helper(i);
-            System.out.println("config: " + config);
-            getBestSolutions(config);
+//------------------------------------------------------------------------------------
+    public void fireStationPlanner(){ //Method that creates the fire stations by calling createcommunityMapFireStationList
+        HashMap<Integer, ArrayList<Integer>> tempcommunityMap = new HashMap<Integer, ArrayList<Integer>>();
+        HashSet<Integer> tempFSList = new HashSet<Integer>();
+        HashSet<Integer> tempVisited = new HashSet<Integer>();
+        
+        for(Integer nodeIndex : this.communityMap.keySet()){ //pass in a duplicate of the HashMap communityMap
+            tempcommunityMap.put(nodeIndex, this.communityMap.get(nodeIndex));
         }
+        
+        this.fireStationList = this.createcommunityMapFireStationList(tempcommunityMap, tempFSList, 0, tempVisited);
+        //createcommunityMapFireStationList
+        System.out.println("Fire Station at: " + this.fireStationList);
     }
-    /*****************Check if the combination works****************************/
-    /*
-     * if works and it is the best solution compare to what we found
-     * clone the cityMap into best solution map
+//---------------------------------------------------------------------------------------------------------------------
+    /* LOGIC: (note: FS = Fire Station)
+     * Find a node that has ONLY ONE child, then that node's child MUST be a FS so that it is protected
+     * if there is no node that satisfy condition above, make the last node we transverse as FS
+     * 
+     * Erase all connections with FS and protected node, and erase the nodes
+     * then proceed to the protected node's children, until every node is erased from the map
      */
-    public void getBestSolutions(String config){ // we need to return a map here
-        int numOfFS=0;
-        for(int i=0; i<config.length(); i++){
-            if(config.charAt(i) == '1'){
-                this.cityMap.get(i).setFireStation();
-                System.out.println("FS: " + i);
-                numOfFS ++;
+    private HashSet<Integer> createcommunityMapFireStationList(HashMap<Integer, ArrayList<Integer>> hashMap, 
+                                              HashSet<Integer> fsList, int nodeIndex, HashSet<Integer> visitedNodes){
+        if(hashMap.size()==0){       //base case: when every node is either protected / is a FS
+            return fsList;
+        }
+        visitedNodes.add(nodeIndex);
+        ArrayList<Integer> childrenList = hashMap.get(nodeIndex);
+        
+/*******if: the node has ONLY ONE child *****************/
+        if(childrenList.size()==1){
+            visitedNodes.clear();
+            Integer childIndex = childrenList.get(0); //get the only child
+            /*Make currentNode's child a FS, then call protected node's children recursively*/
+            ArrayList<Integer> protectedNodeConnectionList = this.makeFirestation(hashMap, fsList, childIndex);
+            for(int callCh=0; callCh<protectedNodeConnectionList.size(); callCh++){
+                int callIndex = protectedNodeConnectionList.get(callCh);
+                if( hashMap.containsKey(callIndex) ){ 
+                    this.createcommunityMapFireStationList(hashMap, fsList, callIndex, visitedNodes);
+                }
+            }
+/*******else: tranverse the map until we find a node that has ONLY ONE child*******/
+        }else{
+            boolean haveWay = false;
+            int index=0;
+            for(int ch=0; ch<childrenList.size(); ch++){
+                index = childrenList.get(ch);
+                if(!visitedNodes.contains(index)){ //if the node is not visited yet
+                    haveWay = true;
+                    this.createcommunityMapFireStationList(hashMap, fsList, index, visitedNodes);
+                }
+            }
+            // if all node is visited, but not one node has only one child --> set the last visited node as FS
+            if(!haveWay){ 
+                ArrayList<Integer> protectedNodeConnectionList = this.makeFirestation(hashMap, fsList, index);
+
+                for(int callCh=0; callCh<protectedNodeConnectionList.size(); callCh++){
+                    int callIndex = protectedNodeConnectionList.get(callCh);
+                    if(hashMap.containsKey(callIndex) ){
+                        this.createcommunityMapFireStationList(hashMap, fsList, callIndex, visitedNodes);
+                    }
+                }
             }
         }
-        /***********check if all the nodes are protected***********/
-        boolean allProtected = true;
-        for(int mIdx=0; mIdx<this.cityMap.size(); mIdx++){
-            if(!this.cityMap.get(mIdx).isProtected()){
-                allProtected = false;
-                break;
+        return fsList;
+    }
+//------------------------------------------------------------------------------------
+    private ArrayList<Integer> makeFirestation(HashMap<Integer, ArrayList<Integer>> hashMap, 
+                                                HashSet<Integer> fsList, int fsIndex){
+        fsList.add(fsIndex);
+        ArrayList<Integer> connectionList = this.eraseConnection(hashMap, fsList, fsIndex);
+        return connectionList;
+    }
+//method - erase connection between nodes to shrink the map after a FS is placed-----------------------------------
+    private ArrayList<Integer> eraseConnection(HashMap<Integer, ArrayList<Integer>> hashMap, 
+                                               HashSet<Integer> fsList, int fireStationIdx){
+        ArrayList<Integer> returnConnectionList = new ArrayList<Integer>();
+        ArrayList<Integer> currentNodeChildren = hashMap.get(fireStationIdx); //get connection of the FS
+        
+        Set<Integer> deleteList = new HashSet<Integer>();
+        Set<Integer> originalList = new HashSet<Integer>();
+        /******add the items that we need to disconnect - FS and protected Node *******/
+        deleteList.add(fireStationIdx);
+        for(int i=0; i<currentNodeChildren.size(); i++){
+            deleteList.add(currentNodeChildren.get(i));
+            returnConnectionList.add(currentNodeChildren.get(i)); // protected node's children
+        }
+        /************Go through every node and delete connections************/
+        for(Integer c : hashMap.keySet()){
+            ArrayList<Integer> childrenList = hashMap.get(c); 
+            originalList.clear();
+            originalList.addAll(childrenList);
+            /**remove all connection between FS/Protected node**/
+            originalList.removeAll(deleteList);
+            /**update connections between nodes**/
+            ArrayList<Integer> temp = new ArrayList<>(originalList);
+            childrenList = temp;
+            hashMap.replace(c, childrenList);
+            if(childrenList.isEmpty()){
+                returnConnectionList.remove(c);
             }
         }
-        //if all nodes are protected, return numOFFs, if no return -1
-        if( (allProtected) && (numOfFS < this.bestNumOfFS) ){
-           // System.out.println( printCurrentMap(this.cityMap)) ;
-            this.bestNumOfFS = numOfFS;
-            //System.out.println("Finish work with " + numOfFS + " fire station(s). ");
-            this.bestSolutionMap.clear();
-            this.cloneNodes(this.cityMap, this.bestSolutionMap);
-            return;
-        }
-        return;
-    }
-//------------------------------------------------------------
-    public String decToBinString(int n, String str){
-        if(n<=1){
-            return Integer.toString(n) + str;
-        }
-        str = Integer.toString(n%2) + str;
-        return decToBinString(n/2, str);
-    }
-//------------------------------------------------------------
-    public String helper(int m){ // add back 0s in to binString if needed
-        String binString = decToBinString(m, "");
-        if(binString.length()<=cityMap.size()){
-            for(int i=binString.length(); i<cityMap.size(); i++){
-                binString = "0" + binString;
+        
+        //remove all node that has an empty ArrayList
+        ArrayList<Integer> myList = new ArrayList<Integer>();
+        hashMap.values().removeAll(Collections.singleton(myList));
+        //deleteList stores the protected nodes that have children
+        deleteList.retainAll(returnConnectionList); 
+        returnConnectionList.clear();
+        
+        for(Integer deleteIdx : deleteList){
+            //returnConenctionList stores the children of the protected nodes
+            returnConnectionList.addAll(hashMap.get(deleteIdx)); 
+            /**check if node that is not protected but its children are all protected, then that node must be a FS**/
+            ArrayList<Integer> deleteNodeConnection = hashMap.get(deleteIdx);
+            for(int d=0; d<deleteNodeConnection.size(); d++){
+                int index =  deleteNodeConnection.get(d);
+                if(!hashMap.containsKey(index)){
+                    fsList.add(index);
+                }
             }
+            hashMap.remove(deleteIdx); // remove all node that are protected / is a FS
         }
-        return binString;
+        return returnConnectionList;    //return the children of the protected nodes
     }
-//------------------------------------------------------------
-    private void resetOriginalMap(){
-        for(int i=0; i<this.cityMap.size(); i++){
-            cityMap.get(i).resetNode();
-        }
-    }
-//------------------------------------------------------------
-    private ArrayList<Node> cloneNodes(ArrayList<Node> inputMap, ArrayList<Node> outputMap){
-        for (int i = 0; i < inputMap.size(); i++){
-            outputMap.add(inputMap.get(i).copyNode());
-        }
-        return outputMap;
-    }
-//------------------------------------------------------------
-    public String printCurrentMap(ArrayList<Node> currentMap){ // for debugging
-        System.out.println("---------currentMap---------");
-        String city = "";
-        String temp = "";
-        Node currentNode;
-        for(int i=0; i<currentMap.size(); i++){ 
-            // example print format: √ 0_FS_P - [1] 
-            // visited, index, isFS, Protected , connectionlist
-            currentNode = currentMap.get(i);
-            temp = currentNode.getConnectionList().toString();
-            if(currentNode.hasVisited()){ city += "√ ";
-            }else{ city += "X "; }
-            city += currentNode.getItem();
-            
-            if(currentNode.isFireStation()){ city += "_FS"; 
-            }else{ city += "_..";}
-            if(currentNode.isProtected()){ city += "_P"; 
-            }else{ city += "_."; }
-            
-            city += " - " + temp + "\n";
-        }
-        return city;
-    }
-//------------------------------------------------------------
-    public ArrayList<Node> getBestSolutionMap(){
-        return this.bestSolutionMap;
-    }
-//------------------------------------------------------------
-    public int getbestNumOfFS(){
-        return this.bestNumOfFS;
-    }
-//------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
     @Override
     public String toString(){
-        String city = "\ntoString method\n";
+        String city = ""; //"\ntoString method\n";
         String temp = "";
-
-        for(int i=0; i<this.cityMap.size(); i++){
-            temp = this.cityMap.get(i).getConnectionList().toString();
-            city += this.cityMap.get(i).getItem() + " - " + temp.substring(1, temp.length() - 1) + "\n";
+        
+        for(Integer nodeIndex : this.communityMap.keySet()){
+            if(this.fireStationList.contains(nodeIndex)){
+                city += "FS ";
+            }else{
+                city += "   ";
+            }
+            temp = this.communityMap.get(nodeIndex).toString();
+            city += nodeIndex + " - " + temp.substring(1, temp.length() - 1) + "\n";
         }
         return city;
     }
-
-//------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
     public void setMap(int mapIndex){
         try{
             fileReader = new FileReader("TestCases/" + FILENAME + mapIndex + ".txt");
@@ -171,76 +194,12 @@ public class Community {
                 }
                 ArrayList<Integer> connectionArr = new ArrayList<Integer>();
                 Collections.addAll(connectionArr, connectionIntArray);
-                this.cityMap.add(new Node(nodeIndex, connectionArr));
+                this.communityMap.put(nodeIndex, connectionArr);
             }
             input.close();
         }catch(Exception e){
             e.printStackTrace();
         }
     }
-//-----------------------------------------------------------------------------------------
-// inner class
-//-----------------------------------------------------------------------------------------
-    private class Node{
-        private int item;
-        private boolean isFireStation = false;
-        private boolean isProtected = false;
-        private boolean visited = false;
-        private ArrayList<Integer> connectionList;
-        
-        Node(int number, ArrayList<Integer> connections){
-            this.item = number;
-            this.connectionList = connections;
-        }
-        private Node(int number, ArrayList<Integer> connections, boolean isFS, boolean isP, boolean isVis){
-            this.item = number;
-            this.connectionList = connections;
-            this.isFireStation = isFS;
-            this.isProtected = isP;
-            this.visited = isVis;
-        }
-//---------------------------getters---------------------------
-        private int getItem(){
-            return this.item;
-        }
-        private boolean isFireStation(){
-            return this.isFireStation;
-        }
-        private boolean isProtected(){
-            return this.isProtected;
-        }
-        private boolean hasVisited(){
-            return this.visited;
-        }
-        private ArrayList<Integer> getConnectionList(){
-            return this.connectionList;
-        }
-
-        private Node copyNode(){
-            return new Node(this.item, this.connectionList, this.isFireStation, this.isProtected, this.visited);
-        }
-        
-        public void resetNode(){
-           this.isFireStation = false;
-           this.isProtected = false;
-           this.visited = false;
-        }
-//---------------------------setters---------------------------
-        private void setFireStation(){
-            currentNumOfFS += 1;
-            /*********set currentNode's children as protected**********/
-            for(int c=0; c<this.connectionList.size(); c++){
-                cityMap.get(this.connectionList.get(c)).setProtected();
-            }  
-            this.isFireStation = true;
-            this.isProtected = true;
-        }
-        private void setProtected(){
-            this.isProtected = true;
-        }
-        private void setVisited(){
-            this.visited = true;
-        }
-    }
-    
 }
+   
