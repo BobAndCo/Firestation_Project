@@ -24,3 +24,15 @@ chosen data structure.
 ## Sample Solution
 
 Here is an example of communities’ layout, with a solution of the problem as described:
+
+### How we layout the city
+
+We number the city starting from 0 - n and then we add a '-' after which we add all the cities that it it connected to seperated by a comma and a space. For example:
+
+0 - 1
+1 - 1, 2, 4
+2 - 1, 3
+3 - 2, 4
+4 - 1, 3
+
+![](images/sampleCity.HEIC)

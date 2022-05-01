@@ -7,7 +7,7 @@
 
 public class Main{
     public static void main(String[] args){  
-        Community com1 = new Community(5);
+        Community com1 = new Community(9);
         com1.fireStationPlanner();
         System.out.println(com1);
         Visualizer v = new Visualizer(com1);
