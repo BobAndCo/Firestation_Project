@@ -158,6 +158,13 @@ public class Community{
         }
         return returnConnectionList;    //return the children of the protected nodes
     }
+ //Getters-------------------------------------------------------------------------
+    public HashMap<Integer, ArrayList<Integer>> getCommunityMap(){
+        return this.communityMap;
+    }
+    public HashSet<Integer> getFireStationList(){
+        return this.fireStationList;
+    }
 //---------------------------------------------------------------------------------------------------------------------
     @Override
     public String toString(){

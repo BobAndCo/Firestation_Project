@@ -166,6 +166,25 @@ public class Graph {
         return this.bestNumOfFS;
     }
 //------------------------------------------------------------
+    public ArrayList<Integer> getConectByIndex(int index){
+        if(index<cityMap.size()){
+            return this.cityMap.get(index).getConnectionList();
+        }
+        return null;
+    }
+    public boolean checkIsFireStation(int index){
+        if(index<cityMap.size()){
+            return this.cityMap.get(index).isFireStation();
+        }
+        return false;
+    }
+    public boolean checkIsProtected(int index){
+        if(index<cityMap.size()){
+            return this.cityMap.get(index).isProtected();
+        }
+        return false;
+    }
+    
     @Override
     public String toString(){
         String city = "\ntoString method\n";
