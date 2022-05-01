@@ -158,7 +158,7 @@ public class Community{
         }
         return returnConnectionList;    //return the children of the protected nodes
     }
- //getters-------------------------------------------------------------------------
+ //Getters-------------------------------------------------------------------------
     public HashMap<Integer, ArrayList<Integer>> getCommunityMap(){
         return this.communityMap;
     }

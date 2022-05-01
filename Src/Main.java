@@ -1,4 +1,3 @@
-import java.io.File;
 /**[Main.java]
   * This is Algorithms Assignment - Fire Stations Planner
   * This is the main method 

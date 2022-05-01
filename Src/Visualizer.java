@@ -1,10 +1,17 @@
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import java.awt.Color;
+import java.awt.Graphics;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 
+/**[Visualizer.java]
+  * This is Algorithms Assignment - Fire Stations Planner
+  * This is the visualizer that takes in the Community that draws the cities and fire station
+  * @author Khush, Kylie, Alon - ICS4UE
+  * @version 1.0, May 1, 2022
+  */
 public class Visualizer extends JFrame{
     private ArrayList<ArrayList<Integer> > cityArray = new ArrayList<ArrayList<Integer> >();
     private ArrayList<Integer> comunitisInCityList = new ArrayList<Integer>();
@@ -40,7 +47,7 @@ public class Visualizer extends JFrame{
         this.panel =  new NodePanel();
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.panel.setBackground(Color.LIGHT_GRAY);
-        this.getContentPane().add(BorderLayout.CENTER, panel);
+        this.getContentPane().add(panel);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(MAX_X, MAX_Y);
         this.setVisible(true);
@@ -86,7 +93,7 @@ public class Visualizer extends JFrame{
     private class NodePanel extends JPanel{
         NodePanel(){ 
         }
-        
+//--------------------------------------------------------------------------------------
         @Override
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
@@ -118,7 +125,7 @@ public class Visualizer extends JFrame{
                     originX = col*communitySpace;
                     Integer currentNode =cityArray.get(row).get(col);
 
-                    if(fireStationList.contains(currentNode)){
+                    if(fireStationList.contains(currentNode)){ // if the node is a fire station
                         g.setColor(Color.RED);
                     }
                     else{
