@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
 
-/**[Graph.java]
+/**[Community.java]
   * This is Algorithms Assignment - Fire Stations Planner 
   * This is a class representing the community
   * @author Khush, Kylie, Alon - ICS4UE
