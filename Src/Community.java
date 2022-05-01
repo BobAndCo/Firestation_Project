@@ -21,7 +21,7 @@ public class Community{
     static FileReader fileReader;
     static BufferedReader input;
 
-    final static String FILENAME = "communityMapInput_";
+    final static String FILENAME = "communityInput_";
 
     private int mapIndex;
     
