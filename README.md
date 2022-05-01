@@ -29,10 +29,10 @@ Here is an example of communities’ layout, with a solution of the problem as d
 
 We number the city starting from 0 - n and then we add a '-' after which we add all the cities that it it connected to seperated by a comma and a space. For example:
 
-0 - 1
-1 - 1, 2, 4
-2 - 1, 3
-3 - 2, 4
-4 - 1, 3
+0 - 1 </br>
+1 - 1, 2, 4 </br>
+2 - 1, 3 </br>
+3 - 2, 4 </br>
+4 - 1, 3 </br>
 
-![](images/sampleCity.HEIC)
+![](images/sampleCity.jpg)
