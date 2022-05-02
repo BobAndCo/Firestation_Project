@@ -7,9 +7,17 @@
 
 public class Main{
     public static void main(String[] args){  
+        long start, end;  
+        double executionTime;
+        start = System.nanoTime(); 
+        
         Community com1 = new Community(6);
         com1.fireStationPlanner();
         System.out.println(com1);
+        end = System.nanoTime(); 
+        executionTime = (end - start)/1000000.0; 
+        System.out.println("The sort took: " + executionTime + "ms");
+        
         Visualizer v = new Visualizer(com1);
     }
 }
