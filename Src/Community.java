@@ -20,10 +20,13 @@ public class Community{
 
     static FileReader fileReader;
     static BufferedReader input;
-
+    
     final static String FILENAME = "communityInput_";
-
-    private int mapIndex;
+    
+    private final int mapIndex;
+    
+    private int maxConnection = 0;
+    private int maxIndex = 0;
     
 //------------------------------------------------------------
     Community(int mapIndex){
@@ -43,8 +46,11 @@ public class Community{
         }
         
         this.fireStationList = this.createcommunityMapFireStationList(tempcommunityMap, tempFSList, 0, tempVisited);
-        //createcommunityMapFireStationList
-        System.out.println("Fire Station at: " + this.fireStationList);
+        
+        /*Sort this.fireStationList in ascending order*/
+        List<Integer> tempSort = new ArrayList<Integer>(this.fireStationList);
+        Collections.sort(tempSort);
+        System.out.println("Fire Station at: " + tempSort);
     }
 //---------------------------------------------------------------------------------------------------------------------
     /* LOGIC: (note: FS = Fire Station)
@@ -61,12 +67,18 @@ public class Community{
         }
         visitedNodes.add(nodeIndex);
         ArrayList<Integer> childrenList = hashMap.get(nodeIndex);
-        
-/*******if: the node has ONLY ONE child *****************/
+
+        if(maxConnection<=childrenList.size()){
+            this.maxConnection = childrenList.size();
+            this.maxIndex = nodeIndex; 
+        }
+        /*******if: the node has ONLY ONE child *****************/
         if(childrenList.size()==1){
+            /*reset*/
             visitedNodes.clear();
-            Integer childIndex = childrenList.get(0); //get the only child
+            this.maxConnection=0;
             /*Make currentNode's child a FS, then call protected node's children recursively*/
+            Integer childIndex = childrenList.get(0); //get the only child
             ArrayList<Integer> protectedNodeConnectionList = this.makeFirestation(hashMap, fsList, childIndex);
             for(int callCh=0; callCh<protectedNodeConnectionList.size(); callCh++){
                 int callIndex = protectedNodeConnectionList.get(callCh);
@@ -85,9 +97,9 @@ public class Community{
                     this.createcommunityMapFireStationList(hashMap, fsList, index, visitedNodes);
                 }
             }
-            // if all node is visited, but not one node has only one child --> set the last visited node as FS
+            // if all node is visited, but not one node has only one child --> set the node with the most connection FS
             if(!haveWay){ 
-                ArrayList<Integer> protectedNodeConnectionList = this.makeFirestation(hashMap, fsList, index);
+                ArrayList<Integer> protectedNodeConnectionList = this.makeFirestation(hashMap, fsList, this.maxIndex);
 
                 for(int callCh=0; callCh<protectedNodeConnectionList.size(); callCh++){
                     int callIndex = protectedNodeConnectionList.get(callCh);
